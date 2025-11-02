@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>My Website</title>
+  <link rel="stylesheet" href="task3.css" />
+</head>
+<body>
+
+<header class="site" role="banner">
+  <div class="headline">My Website</div>
+
+  <nav class="list">
+    <div class="product">Item 1</div>
+    <div class="product">Item 2</div>
+    <div class="product">Item 3</div>
+    <div class="product">Item 4</div>
+  </nav>
+
+  <input id="nav-toggle" class="nav-toggle" type="checkbox" />
+  <label class="menu-btn" for="nav-toggle">
+    <img src="menu.svg" alt="menu" />
+  </label>
+
+  <aside class="offcanvas">
+    <div class="offcanvas-inner">
+      <label for="nav-toggle" class="offcanvas-close">✕</label>
+      <nav class="offcanvas-menu">
+        <a href="#">Item 1</a>
+        <a href="#">Item 2</a>
+        <a href="#">Item 3</a>
+        <a href="#">Item 4</a>
+      </nav>
+    </div>
+  </aside>
+</header>
+
+<header class="lbzone" role="banner">
+  <h1 class="welcome">Welcome to MyHome</h1>
+</header>
+
+<div class="main-vessel">
+  <main class="main" role="main">
+    <section class="allbars"></section>
+    <section class="cards"></section>
+  </main>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const url1 = "https://cwpeng.github.io/test/assignment-3-1";
+  const url2 = "https://cwpeng.github.io/test/assignment-3-2";
+
+
+  Promise.all([
+    fetch(url1).then(r => r.json()),
+    fetch(url2).then(r => r.json())
+  ]).then(([a, b]) => {
+    render(a, b);
+  }).catch(err => {
+    console.log("抓資料失敗：", err);
+  });
+
+
+  function firstImageUrlFromPics(host, pics) {
+    if (!pics) return "";
+    const m = pics.match(/\/[^\s]+?\.(jpg|jpeg|png)/i);
+    return m ? host + m[0] : "";
+  }
+
+ 
+  function pickTitle(item) {
+    return item.sname || item.stitle || item.SName || item.name || item.title || "(未命名)";
+  }
+
+  function pickSerial(item) {
+    return item.serial || item.SERIAL_NO || item.serial_no || item.id || item._id || "";
+  }
+
+  function render(a, b) {
+ 
+    const imgTable = (a && a.rows && a.host) ? a : (b && b.rows && b.host) ? b : null;
+    const mainTable = (a && a.rows && !a.host) ? a : (b && b.rows && !b.host) ? b : null;
+
+    if (!imgTable || !mainTable) {
+      console.log("資料格式不如預期（找不到主表）：", a || b);
+      return;
+    }
+
+   
+    const imgMap = {};
+    imgTable.rows.forEach(row => {
+      const url = firstImageUrlFromPics(imgTable.host, row.pics);
+      if (row.serial && url) imgMap[row.serial] = url;
+    });
+
+    const list = mainTable.rows || [];
+
+    const bars = document.querySelector(".allbars");
+    const cards = document.querySelector(".cards");
+    if (!bars || !cards) return;
+
+    bars.innerHTML = "";
+    cards.innerHTML = "";
+
+ 
+    for (let i = 0; i < Math.min(3, list.length); i++) {
+      const it = list[i];
+      const serial = pickSerial(it);
+      const title = pickTitle(it);
+      const imgUrl = imgMap[serial] || "";
+
+      const bar = document.createElement("div");
+      bar.className = "bar bar" + (i + 1);
+
+      const img = document.createElement("img");
+      img.className = "bar-pic";
+      img.src = imgUrl;
+      img.alt = title;
+
+      const textBox = document.createElement("div");
+      textBox.className = "bar-text";
+      const t = document.createElement("div");
+      t.className = "bar-title";
+      t.textContent = title;
+
+      textBox.appendChild(t);
+      bar.appendChild(img);
+      bar.appendChild(textBox);
+      bars.appendChild(bar);
+    }
+
+
+    for (let i = 3; i < Math.min(13, list.length); i++) {
+      const it = list[i];
+      const serial = pickSerial(it);
+      const title = pickTitle(it);
+      const imgUrl = imgMap[serial] || "";
+
+      const card = document.createElement("article");
+      card.className = "card";
+      card.style.backgroundImage = imgUrl ? `url('${imgUrl}')` : "none";
+
+      const star = document.createElement("div");
+      star.className = "star";
+      star.textContent = "★";
+
+      const desc = document.createElement("div");
+      desc.className = "description";
+      desc.textContent = title;
+
+      card.appendChild(star);
+      card.appendChild(desc);
+      cards.appendChild(card);
+    }
+  }
+});
+</script>
+
+
+</body>
+</html>
