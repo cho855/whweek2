@@ -122,6 +122,13 @@ def login(request: Request,
         request.session.pop("email", None)
         msg = urlencode({"msg": "請勾選同意條款"})
         return RedirectResponse(url=f"/ohoh?{msg}", status_code=303)
+    
+    if not email or not password:
+        request.session["logged_in"] = False
+        request.session.pop("email", None)
+        msg = urlencode({"msg": "請輸入信箱和密碼"})
+        return RedirectResponse(url=f"/ohoh?{msg}", status_code=303)
+
 
     if email == VALID_EMAIL and password == VALID_PASSWORD:
         request.session["logged_in"] = True
@@ -130,7 +137,7 @@ def login(request: Request,
 
     request.session["logged_in"] = False
     request.session.pop("email", None)
-    msg = urlencode({"msg": "帳號或密碼輸入錯誤"})
+    msg = urlencode({"msg": "信箱或密碼輸入錯誤"})
     return RedirectResponse(url=f"/ohoh?{msg}", status_code=303)
 
 
