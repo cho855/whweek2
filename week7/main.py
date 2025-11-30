@@ -224,19 +224,6 @@ def error_page(request: Request, msg: str = Query("")):
 # week7 Task 4 
 @app.get("/api/member/query-log")
 def get_query_log(request: Request):
-    """
-    回傳目前登入會員「被誰查過」的紀錄（最多 10 筆）。
-    回傳格式：
-      未登入：{"data": null}
-      有登入：
-        {
-          "data": [
-            {"searcher_name": "某某", "query_time": "2025-11-28 14:22:33"},
-            ...
-          ]
-        }
-    """
-
   
     member = request.session.get("member")
     if member is None:
@@ -344,12 +331,6 @@ class NameUpdate(BaseModel):
 
 @app.patch("/api/member")
 def update_member_name(data: NameUpdate, request: Request):
-    """
-    更新目前登入會員的姓名。
-    接收 JSON：{"name": "新的使用者姓名"}
-    成功 → 回傳 {"ok": true}
-    失敗 → 回傳 {"error": true}
-    """
 
     member = request.session.get("member")
     if member is None:
